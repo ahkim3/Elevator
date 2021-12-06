@@ -21,39 +21,49 @@ class Graph
 
 	// Pointer to an array containing adjacency
 	// lists
-	vector<int>* adj;
+	vector<int>* adjList;
 public:
-	Graph(int vertices); // Constructor
+	Graph();
+	Graph(int);
 
 	// function to add an edge to graph
-	void addEdge(int v, int w);
+	void addEdge(int, int);
 
 	// prints BFS traversal from a given source s
-	void BFS(int s);
+	void BFS(int);
+
+	void BFS(int, int, int, int, int);
 };
+
+
+Graph::Graph()
+{
+}
+
 
 Graph::Graph(int vertices)
 {
 	this->vertices = vertices;
-	adj = new vector<int>[vertices];
+	adjList = new vector<int>[vertices];
 }
 
 
 // Add the weight of a new edge to a vertex's adjacency list
 void Graph::addEdge(int vertex, int weight)
 {
-	adj[vertex].push_back(weight);
+	adjList[vertex].push_back(weight);
 }
 
-void Graph::BFS(int startVertex)
+
+void Graph::BFS(int floors, int start, int goal, int up, int down)
 {
+	queue<int> queue;
+	int pressCount = 0;
+
 	// Mark all the vertices as not visited
 	bool* visited = new bool[vertices];
 	for (int i = 0; i < vertices; i++)
 		visited[i] = false;
-
-	// Create a queue for BFS
-	queue<int> queue;
 
 	// Mark the current node as visited and enqueue it
 	visited[startVertex] = true;
@@ -73,7 +83,46 @@ void Graph::BFS(int startVertex)
 		// Get all adjacent vertices of the dequeued
 		// vertex s. If a adjacent has not been visited,
 		// then mark it visited and enqueue it
-		for (i = adj[startVertex].begin(); i != adj[startVertex].end(); ++i)
+		for (i = adjList[startVertex].begin(); i != adjList[startVertex].end(); ++i)
+		{
+			if (!visited[*i])
+			{
+				visited[*i] = true;
+				queue.push(*i);
+			}
+		}
+	}
+}
+
+
+void Graph::BFS(int startVertex)
+{
+	queue<int> queue;
+
+	// Mark all the vertices as not visited
+	bool* visited = new bool[vertices];
+	for (int i = 0; i < vertices; i++)
+		visited[i] = false;
+
+	// Mark the current node as visited and enqueue it
+	visited[startVertex] = true;
+	queue.push(startVertex);
+
+	// 'i' will be used to get all adjacent
+	// vertices of a vertex
+	vector<int>::iterator i;
+
+	while (!queue.empty())
+	{
+		// Dequeue a vertex from queue and print it
+		startVertex = queue.front();
+		cout << startVertex << " ";
+		queue.pop();
+
+		// Get all adjacent vertices of the dequeued
+		// vertex s. If a adjacent has not been visited,
+		// then mark it visited and enqueue it
+		for (i = adjList[startVertex].begin(); i != adjList[startVertex].end(); ++i)
 		{
 			if (!visited[*i])
 			{
