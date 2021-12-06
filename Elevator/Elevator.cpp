@@ -23,22 +23,14 @@ class Graph
 	// lists
 	vector<int>* adjList;
 public:
-	Graph();
 	Graph(int);
 
 	// function to add an edge to graph
 	void addEdge(int, int);
 
 	// prints BFS traversal from a given source s
-	void BFS(int);
-
-	void BFS(int, int, int, int, int);
+	void BFS(int, int);
 };
-
-
-Graph::Graph()
-{
-}
 
 
 Graph::Graph(int vertices)
@@ -54,48 +46,7 @@ void Graph::addEdge(int vertex, int weight)
 	adjList[vertex].push_back(weight);
 }
 
-
-void Graph::BFS(int floors, int start, int goal, int up, int down)
-{
-	queue<int> queue;
-	int pressCount = 0;
-
-	// Mark all the vertices as not visited
-	bool* visited = new bool[vertices];
-	for (int i = 0; i < vertices; i++)
-		visited[i] = false;
-
-	// Mark the current node as visited and enqueue it
-	visited[startVertex] = true;
-	queue.push(startVertex);
-
-	// 'i' will be used to get all adjacent
-	// vertices of a vertex
-	vector<int>::iterator i;
-
-	while (!queue.empty())
-	{
-		// Dequeue a vertex from queue and print it
-		startVertex = queue.front();
-		cout << startVertex << " ";
-		queue.pop();
-
-		// Get all adjacent vertices of the dequeued
-		// vertex s. If a adjacent has not been visited,
-		// then mark it visited and enqueue it
-		for (i = adjList[startVertex].begin(); i != adjList[startVertex].end(); ++i)
-		{
-			if (!visited[*i])
-			{
-				visited[*i] = true;
-				queue.push(*i);
-			}
-		}
-	}
-}
-
-
-void Graph::BFS(int startVertex)
+void Graph::BFS(int startVertex, int goal)
 {
 	queue<int> queue;
 
@@ -114,9 +65,13 @@ void Graph::BFS(int startVertex)
 
 	while (!queue.empty())
 	{
+		if (startVertex == goal)
+			return;
+
 		// Dequeue a vertex from queue and print it
 		startVertex = queue.front();
 		cout << startVertex << " ";
+
 		queue.pop();
 
 		// Get all adjacent vertices of the dequeued
@@ -132,6 +87,47 @@ void Graph::BFS(int startVertex)
 		}
 	}
 }
+
+
+/*bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, int down)
+{
+	queue<PII> q;
+
+	q.push(make_pair(start, 0));
+	int press = 0;
+	while (!q.empty())
+	{
+		PII top = q.front();
+		q.pop();
+
+		if (press == top.second || top.first == goal)
+			trackFloors.push_back(top.first);
+
+		press = top.second;
+
+		visited[top.first] = true;
+
+
+		if (top.first == goal)
+		{
+			return true;
+		}
+		press++;
+		if (top.first + up <= floors && visited[top.first + up] == false)
+		{
+			visited[top.first + up] = true;
+			q.push(make_pair(top.first + up, press));
+		}
+		if (top.first - down >= 0 && visited[top.first - down] == false)
+		{
+			visited[top.first - down] = true;
+			q.push(make_pair(top.first - down, press));
+			//if (start < goal && top.first > goal)
+			//    trackFloors.pop_back();
+		}
+	}
+	return false;
+}*/
 
 
 int main()
@@ -144,17 +140,15 @@ int main()
 	cout << endl;
 
 	// Create a graph given in the above diagram
-	Graph g(4);
-	g.addEdge(0, 1);
-	g.addEdge(0, 2);
-	g.addEdge(1, 2);
-	g.addEdge(2, 0);
-	g.addEdge(2, 3);
-	g.addEdge(3, 3);
+	Graph g(floors);
+
+	for (int i = start; i <= floors - up; i += up)
+		g.addEdge(i, i + up);
+	g.addEdge(11, 10);
 
 	cout << "Following is Breadth First Traversal "
 		<< "(starting from vertex 2) \n";
-	g.BFS(2);
+	g.BFS(start, goal);
 
 	return 0;
 }
