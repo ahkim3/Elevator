@@ -20,7 +20,7 @@ bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, int 
         PII top = q.front();
         q.pop();
 
-        if (press == top.second || top.first == goal)
+        //if (press == top.second || top.first == goal)
             trackFloors.push_back(top.first);
 
         press = top.second;
