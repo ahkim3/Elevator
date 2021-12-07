@@ -1,10 +1,11 @@
 /*
-	Name: Andrew Kim
-	Date: 12/5/2021
-	Title: Programming Assignment #3
+    Name: Andrew Kim
+    Date: 12/5/2021
+    Title: Programming Assignment #3
 
-	References:
-		1) https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
+    References:
+    1) https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
+    2) https://stackoverflow.com/questions/5289597/how-to-use-vectorpush-back-with-a-struct
 */
 
 #include <iostream>
@@ -13,142 +14,105 @@
 using namespace std;
 
 
-// This class represents a directed graph using
-// adjacency list representation
-class Graph
-{
-	int vertices; // No. of vertices
-
-	// Pointer to an array containing adjacency
-	// lists
-	vector<int>* adjList;
-public:
-	Graph(int);
-
-	// function to add an edge to graph
-	void addEdge(int, int);
-
-	// prints BFS traversal from a given source s
-	void BFS(int, int);
+struct node {
+    int value;
+    bool upDirection; // True if node is upwards in relation to previous node
 };
 
-
-Graph::Graph(int vertices)
+node createNode(int value, bool upDirection)
 {
-	this->vertices = vertices;
-	adjList = new vector<int>[vertices];
+    node myNode = { value, upDirection };
+    return myNode;
 }
 
 
-// Add the weight of a new edge to a vertex's adjacency list
-void Graph::addEdge(int vertex, int weight)
+bool visited[101];
+
+bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, 
+    int down)
 {
-	adjList[vertex].push_back(weight);
+    queue<node> queue;
+    vector<node> trackNodes;
+
+    queue.push(createNode(start, true));
+
+    while (!queue.empty())
+    {
+        node front = queue.front();
+        queue.pop();
+
+        trackNodes.push_back(front);
+
+        visited[front.value] = true;
+
+        // Found goal floor
+        if (front.value == goal)
+        {
+            int searchValue;
+           
+            // Backtrack to isolate path
+            while (front.value != start)
+            {
+                trackFloors.push_back(front.value);
+
+                if (front.upDirection) // Need to subtract to get prior node
+                    searchValue = front.value - up;
+                else // Need to add to get prior node
+                    searchValue = front.value + down;
+
+                // Find previous node
+                for (int i = trackNodes.size() - 1; i >= 0; i--)
+                {
+                    if (trackNodes.at(i).value == searchValue)
+                    {
+                        front = trackNodes.at(i);
+                        trackNodes.erase(trackNodes.begin() + i);
+                        break;
+                    }
+                }
+            }
+
+            trackFloors.push_back(start); // Add final node
+            reverse(trackFloors.begin(), trackFloors.end()); // Fix order
+
+            return true;
+        }
+
+        // Found valid higher floor
+        if (front.value + up <= floors && visited[front.value + up] == false)
+        {
+            visited[front.value + up] = true;
+            queue.push(createNode(front.value + up, true));
+        }
+
+        // Found valid lower floor
+        if (front.value - down >= 0 && visited[front.value - down] == false)
+        {
+            visited[front.value - down] = true;
+            queue.push(createNode(front.value - down, false));
+        }
+    }
+    return false;
 }
-
-void Graph::BFS(int startVertex, int goal)
-{
-	queue<int> queue;
-
-	// Mark all the vertices as not visited
-	bool* visited = new bool[vertices];
-	for (int i = 0; i < vertices; i++)
-		visited[i] = false;
-
-	// Mark the current node as visited and enqueue it
-	visited[startVertex] = true;
-	queue.push(startVertex);
-
-	// 'i' will be used to get all adjacent
-	// vertices of a vertex
-	vector<int>::iterator i;
-
-	while (!queue.empty())
-	{
-		if (startVertex == goal)
-			return;
-
-		// Dequeue a vertex from queue and print it
-		startVertex = queue.front();
-		cout << startVertex << " ";
-
-		queue.pop();
-
-		// Get all adjacent vertices of the dequeued
-		// vertex s. If a adjacent has not been visited,
-		// then mark it visited and enqueue it
-		for (i = adjList[startVertex].begin(); i != adjList[startVertex].end(); ++i)
-		{
-			if (!visited[*i])
-			{
-				visited[*i] = true;
-				queue.push(*i);
-			}
-		}
-	}
-}
-
-
-/*bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, int down)
-{
-	queue<PII> q;
-
-	q.push(make_pair(start, 0));
-	int press = 0;
-	while (!q.empty())
-	{
-		PII top = q.front();
-		q.pop();
-
-		if (press == top.second || top.first == goal)
-			trackFloors.push_back(top.first);
-
-		press = top.second;
-
-		visited[top.first] = true;
-
-
-		if (top.first == goal)
-		{
-			return true;
-		}
-		press++;
-		if (top.first + up <= floors && visited[top.first + up] == false)
-		{
-			visited[top.first + up] = true;
-			q.push(make_pair(top.first + up, press));
-		}
-		if (top.first - down >= 0 && visited[top.first - down] == false)
-		{
-			visited[top.first - down] = true;
-			q.push(make_pair(top.first - down, press));
-			//if (start < goal && top.first > goal)
-			//    trackFloors.pop_back();
-		}
-	}
-	return false;
-}*/
-
 
 int main()
 {
-	int floors, start, goal, up, down;
+    vector<int> trackFloors;
+    int floors, start, goal, up, down;
+    bool success;
 
-	// Obtain user input
-	cout << "Please enter desired floors, start, goal, up, and down inputs: ";
-	cin >> floors >> start >> goal >> up >> down;
-	cout << endl;
+    cin >> floors >> start >> goal >> up >> down;
 
-	// Create a graph given in the above diagram
-	Graph g(floors);
+    success = bfs(trackFloors, floors, start, goal, up, down);
+    cout << endl;
 
-	for (int i = start; i <= floors - up; i += up)
-		g.addEdge(i, i + up);
-	g.addEdge(11, 10);
-
-	cout << "Following is Breadth First Traversal "
-		<< "(starting from vertex 2) \n";
-	g.BFS(start, goal);
-
-	return 0;
+    if (success)
+    {
+        for (int i = 0; i < trackFloors.size() - 1; i++) // Print all but last
+            cout << trackFloors.at(i) << " -> ";
+        cout << trackFloors.at(trackFloors.size() - 1); // Print last floor
+    }
+    else
+        cout << "use the stairs" << endl;
+    return 0;
 }
