@@ -1,49 +1,91 @@
+/*
+
+    Resources:
+    2) https://stackoverflow.com/questions/5289597/how-to-use-vectorpush-back-with-a-struct
+*/
+
 #include <iostream>
 #include <queue>
 
 using namespace std;
 
-#define MAX 10000005
-#define PII pair<int, int>
-vector<vector<int>> adj;
 
-bool visited[MAX];
+struct node {
+    int value;
+    bool upDirection; // True if node is upwards in relation to previous node
+};
 
-bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, int down)
+node createNode(int value, bool upDirection)
 {
-    queue<PII> q;
+    node myNode = { value, upDirection };
+    return myNode;
+}
 
-    q.push(make_pair(start, 0));
-    int press = 0;
-    while (!q.empty())
+
+bool visited[101];
+
+bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, 
+    int down)
+{
+    queue<node> queue;
+    vector<node> trackNodes;
+
+    queue.push(createNode(start, true));
+
+    while (!queue.empty())
     {
-        PII top = q.front();
-        q.pop();
+        node front = queue.front();
+        queue.pop();
 
-        //if (press == top.second || top.first == goal)
-            trackFloors.push_back(top.first);
+        trackNodes.push_back(front);
 
-        press = top.second;
+        visited[front.value] = true;
 
-        visited[top.first] = true;
-
-
-        if (top.first == goal)
+        // Found goal floor
+        if (front.value == goal)
         {
+            int searchValue;
+           
+            // Backtrack to isolate path
+            while (front.value != start)
+            {
+                trackFloors.push_back(front.value);
+
+                if (front.upDirection) // Need to subtract to get prior node
+                    searchValue = front.value - up;
+                else // Need to add to get prior node
+                    searchValue = front.value + down;
+
+                // Find previous node
+                for (int i = trackNodes.size() - 1; i >= 0; i--)
+                {
+                    if (trackNodes.at(i).value == searchValue)
+                    {
+                        front = trackNodes.at(i);
+                        trackNodes.erase(trackNodes.begin() + i);
+                        break;
+                    }
+                }
+            }
+
+            trackFloors.push_back(start); // Add final node
+            reverse(trackFloors.begin(), trackFloors.end()); // Fix order
+
             return true;
         }
-        press++;
-        if (top.first + up <= floors && visited[top.first + up] == false)
+
+        // Found valid higher floor
+        if (front.value + up <= floors && visited[front.value + up] == false)
         {
-            visited[top.first + up] = true;
-            q.push(make_pair(top.first + up, press));
+            visited[front.value + up] = true;
+            queue.push(createNode(front.value + up, true));
         }
-        if (top.first - down >= 0 && visited[top.first - down] == false)
+
+        // Found valid lower floor
+        if (front.value - down >= 0 && visited[front.value - down] == false)
         {
-            visited[top.first - down] = true;
-            q.push(make_pair(top.first - down, press));
-            //if (start < goal && top.first > goal)
-            //    trackFloors.pop_back();
+            visited[front.value - down] = true;
+            queue.push(createNode(front.value - down, false));
         }
     }
     return false;
@@ -58,10 +100,14 @@ int main()
     cin >> floors >> start >> goal >> up >> down;
 
     success = bfs(trackFloors, floors, start, goal, up, down);
+    cout << endl;
 
     if (success)
-        for (int i : trackFloors)
-            cout << i << ' ';
+    {
+        for (int i = 0; i < trackFloors.size() - 1; i++) // Print all but last
+            cout << trackFloors.at(i) << " -> ";
+        cout << trackFloors.at(trackFloors.size() - 1); // Print last floor
+    }
     else
         cout << "use the stairs" << endl;
     return 0;
