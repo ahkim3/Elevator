@@ -1,23 +1,29 @@
 /*
     Name: Andrew Kim
+    Pawprint: AHKYQX
+    Assignment: CS3050 Prog3 2021F
     Date: 12/5/2021
-    Title: Programming Assignment #3
 
     References:
     1) https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
     2) https://stackoverflow.com/questions/5289597/how-to-use-vectorpush-back-with-a-struct
+    3) https://www.cplusplus.com/reference/algorithm/reverse/
 */
 
 #include <iostream>
 #include <queue>
+#include <algorithm> // Used for std::reverse
+
 
 using namespace std;
 
 
+bool visited[101];
 struct node {
     int value;
     bool upDirection; // True if node is upwards in relation to previous node
 };
+
 
 node createNode(int value, bool upDirection)
 {
@@ -25,8 +31,6 @@ node createNode(int value, bool upDirection)
     return myNode;
 }
 
-
-bool visited[101];
 
 bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up, 
     int down)
@@ -95,6 +99,7 @@ bool bfs(vector<int>& trackFloors, int floors, int start, int goal, int up,
     return false;
 }
 
+
 int main()
 {
     vector<int> trackFloors;
@@ -108,9 +113,9 @@ int main()
 
     if (success)
     {
-        for (int i = 0; i < trackFloors.size() - 1; i++) // Print all but last
+        for (unsigned int i = 0; i < trackFloors.size() - 1; i++) // Print all but last
             cout << trackFloors.at(i) << " -> ";
-        cout << trackFloors.at(trackFloors.size() - 1); // Print last floor
+        cout << trackFloors.at(trackFloors.size() - 1) << endl; // Print last floor
     }
     else
         cout << "use the stairs" << endl;
