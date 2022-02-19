@@ -1,4 +1,4 @@
-# CS 3050 Programming Assignment #3.		
+# Elevator Algorithm (A Breadth-First Search Application).		
 
 You are in a skyscraper and you are currently in floor s, where you see an elevator. Upon entering the elevator, you learn that it has only two buttons, marked "UP *u*" and "DOWN *d*". The UP-button takes the elevator *u* floors up (if there aren't enough floors, pressing the UP-botton does nothing), whereas the DOWN-button takes you d stories down (or none if there aren't enough). If you want to go to floor *g*, and that there are only f floors in the building, write a program that gives you the amount of button pushes you need to perform. If you simply cannot reach the correct floor, your program halts with the message "use the stairs".
 
